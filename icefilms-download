@@ -24,3 +24,5 @@ done
 
 echo
 echo "$MEGAUPLOAD_PAGE" | ruby -rnokogiri -e 'puts Nokogiri::parse(STDIN.read).at("#downloadlink").at("a").attributes["href"]'
+
+rm "$COOKIE_JAR"
