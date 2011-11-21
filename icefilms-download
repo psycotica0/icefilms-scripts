@@ -1,5 +1,7 @@
 #!/bin/sh
 
+COOKIE_JAR="$(mktemp)"
+
 DOWNLOAD_RB='
 f = Nokogiri::parse(STDIN.read).at("form[name=frm]")
 def f.method_missing(att)
@@ -9,8 +11,8 @@ end
 puts "id=#{ARGV[1]}&s=120&iqs=#{f.iqs}&url=#{f.url}&m=-35&cap=&sec=37fn8Oklq&t=#{ARGV[0]}"
 '
 
-POSTDATA="`curl -s http://www.icefilms.info/membersonly/components/com_iceplayer/video.php?vid=$1 | ruby -rnokogiri -e"$DOWNLOAD_RB" $1 $2`"
-MEGAUPLOAD="`curl -s http://www.icefilms.info/membersonly/components/com_iceplayer/video.phpAjaxResp.php -d "$POSTDATA" | cut -d= -f2- | cut -d'&' -f1 | ruby -rcgi -e 'puts CGI::unescape(gets)'`"
+POSTDATA="`curl -c "$COOKIE_JAR" -s http://www.icefilms.info/membersonly/components/com_iceplayer/video.php?vid=$1 | ruby -rnokogiri -e"$DOWNLOAD_RB" $1 $2`"
+MEGAUPLOAD="`curl -b "$COOKIE_JAR" -s http://www.icefilms.info/membersonly/components/com_iceplayer/video.phpAjaxResp.php -d "$POSTDATA" | cut -d= -f2- | cut -d'&' -f1 | ruby -rcgi -e 'puts CGI::unescape(gets)'`"
 MEGAUPLOAD_PAGE="`curl -s "$MEGAUPLOAD"`"
 
 TIMEOUT="`echo "$MEGAUPLOAD_PAGE" | grep 'count=\d*' | cut -d= -f2 | cut -d';' -f1`"
